@@ -4,6 +4,7 @@
 
 ```ruby
 gem install god
+gem install mina
 ```
 
 ## Usage
