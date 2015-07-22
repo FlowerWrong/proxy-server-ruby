@@ -1,3 +1,4 @@
+require 'mina/bundler'
 require 'mina/git'
 # require 'mina/rvm'    # for rvm support. (http://rvm.io)
 
@@ -36,8 +37,25 @@ task :environment do
 end
 
 # Put any custom mkdir's in here for when `mina setup` is ran.
+# For Rails apps, we'll make some of the shared paths that are shared between
+# all releases.
 task :setup => :environment do
-  # queue! %[mkdir -p "#{deploy_to}/#{shared_path}/log"]
+  queue! %[mkdir -p "#{deploy_to}/#{shared_path}/log"]
+  queue! %[chmod g+rx,u+rwx "#{deploy_to}/#{shared_path}/log"]
+
+  queue! %[mkdir -p "#{deploy_to}/#{shared_path}/config"]
+  queue! %[chmod g+rx,u+rwx "#{deploy_to}/#{shared_path}/config"]
+
+  queue! %[touch "#{deploy_to}/#{shared_path}/config/database.yml"]
+  queue! %[touch "#{deploy_to}/#{shared_path}/config/secrets.yml"]
+  queue  %[echo "-----> Be sure to edit '#{deploy_to}/#{shared_path}/config/database.yml' and 'secrets.yml'."]
+
+  queue %[
+    repo_host=`echo $repo | sed -e 's/.*@//g' -e 's/:.*//g'` &&
+    repo_port=`echo $repo | grep -o ':[0-9]*' | sed -e 's/://g'` &&
+    if [ -z "${repo_port}" ]; then repo_port=22; fi &&
+    ssh-keyscan -p $repo_port -H $repo_host >> ~/.ssh/known_hosts
+  ]
 end
 
 desc "Deploys the current version to the server."
@@ -49,9 +67,11 @@ task :deploy => :environment do
     # Put things that will set up an empty directory into a fully set-up
     # instance of your project.
     invoke :'git:clone'
+    invoke :'bundle:install'
 
     to :launch do
-      # queue "mkdir -p #{deploy_to}/#{current_path}/tmp/"
+      queue "mkdir -p #{deploy_to}/#{current_path}/tmp/"
+      queue "touch #{deploy_to}/#{current_path}/tmp/restart.txt"
     end
   end
 end

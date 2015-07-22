@@ -3,8 +3,9 @@
 ## Dependency
 
 ```ruby
-gem install god
-gem install mina
+# gem install god
+# gem install mina
+bundle install
 ```
 
 ## Usage
