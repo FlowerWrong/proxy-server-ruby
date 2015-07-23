@@ -57,6 +57,8 @@ task :deploy => :environment do
 
     to :launch do
       # queue 'god terminate'
+      queue! %[touch "#{deploy_to}/current/log/proxy_server.log"]
+      queue! %[cd "#{deploy_to}/current/"]
       queue 'god restart -c proxy.god'
     end
   end
