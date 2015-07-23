@@ -46,3 +46,10 @@ mina deploy_all
 ```ruby
 ruby health_check.rb
 ```
+
+## Linux port
+
+```ruby
+ps -aux | grep god
+netstat -apn | grep 8008
+```
