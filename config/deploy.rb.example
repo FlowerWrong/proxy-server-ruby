@@ -2,13 +2,14 @@ require 'mina/bundler'
 require 'mina/git'
 require 'mina/rvm'
 
-set :domain, '119.29.12.212'
-set :deploy_to, '/data/app/www/proxy-server-ruby'
+set :domain, 'ip'
+set :deploy_to, 'deploy to'
 set :repository, 'https://github.com/FlowerWrong/proxy-server-ruby.git'
 set :branch, 'master'
 
 # For system-wide RVM install.
-#   set :rvm_path, '/usr/local/rvm/bin/rvm'
+# On server run `which rvm`
+set :rvm_path, '/usr/local/rvm/bin/rvm'
 
 # Manually create these paths in shared/ (eg: shared/config/database.yml) in your server.
 # They will be linked in the 'deploy:link_shared_paths' step.
@@ -23,7 +24,8 @@ set :user, 'ubuntu'    # Username in the server to SSH to.
 # `mina deploy` or `mina rake`.
 task :environment do
   # For those using RVM, use this to load an RVM version@gemset.
-  # invoke :'rvm:use[ruby-1.9.3-p125@default]'
+  # On server run `rvm info`
+  invoke :'rvm:use[ruby-2.1.6-p336@default]'
 end
 
 # Put any custom mkdir's in here for when `mina setup` is ran.

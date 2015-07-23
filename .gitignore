@@ -14,3 +14,4 @@
 !/tmp/.keep
 
 /.idea/
+/config/deploy.rb
