@@ -63,7 +63,7 @@ end
 # If you are using multi servers, edit it.
 
 # https://github.com/mina-deploy/mina/issues/8
-set :domains, %w[host1 host2]
+set :domains, %w[host1 host2 host3]
 
 desc "Setup to all servers"
 task :setup_all do
