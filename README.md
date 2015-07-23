@@ -24,7 +24,8 @@ curl -i -x ip:8008 http://api.douban.com/v2/movie/subject/24847343
 ##### Single server
 
 ```ruby
-cp config/deploy.rb.example config/deploy.rb
+cp config/deploy.example.rb config/deploy.rb
+cp config/setting.example.yml config/setting.yml
 # And then edit it
 mina setup
 mina deploy
@@ -33,8 +34,15 @@ mina deploy
 ##### Multi servers
 
 ```ruby
-cp config/deploy.rb.example config/deploy.rb
+cp config/deploy.example.rb config/deploy.rb
+cp config/setting.example.yml config/setting.yml
 # And then edit it
 mina setup_all
 mina deploy_all
+```
+
+## Health check
+
+```ruby
+ruby health_check.rb
 ```

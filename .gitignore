@@ -15,3 +15,4 @@
 
 /.idea/
 /config/deploy.rb
+/config/setting.yml

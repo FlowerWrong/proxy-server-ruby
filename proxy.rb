@@ -4,8 +4,8 @@ require 'socket'
 require 'uri'
 require 'logging'
 
-logger = Logging.logger(STDOUT)
-logger.level = :warn
+$log = Logging.logger(STDOUT)
+$log.level = :warn
 
 class Proxy
   def run port
@@ -13,7 +13,7 @@ class Proxy
       # Start our server to handle connections (will raise things on errors)
       @socket = TCPServer.new port
 
-      log.warn 'TCPServer started'
+      $log.warn 'TCPServer started'
 
       # Handle every request in another thread
       loop do
@@ -23,21 +23,21 @@ class Proxy
 
     # CTRL-C
     rescue Interrupt
-      log.warn 'Got Interrupt..'
+      $log.warn 'Got Interrupt..'
     # Ensure that we release the socket on errors
     ensure
       if @socket
         @socket.close
-        log.warn 'Socked closed..'
+        $log.warn 'Socked closed..'
       end
-      log.warn 'Quitting.'
+      $log.warn 'Quitting.'
     end
   end
 
   def handle_request to_client
     request_line = to_client.readline
-    log.warn '-----------------------------------------------------------------'
-    log.warn request_line
+    $log.warn '-----------------------------------------------------------------'
+    $log.warn request_line
     verb    = request_line[/^\w+/]
     url     = request_line[/^\w+\s+(\S+)/, 1]
     version = request_line[/HTTP\/(1\.\d)\s*$/, 1]
@@ -83,7 +83,7 @@ if ARGV.empty?
 elsif ARGV.size == 1
   port = ARGV[0].to_i
 else
-  log.warn 'Usage: proxy.rb [port]'
+  $log.warn 'Usage: proxy.rb [port]'
   exit 1
 end
 
