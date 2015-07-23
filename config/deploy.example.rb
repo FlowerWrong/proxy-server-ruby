@@ -18,7 +18,7 @@ set :rvm_path, default_config[:rvm_path]
 
 # Manually create these paths in shared/ (eg: shared/config/database.yml) in your server.
 # They will be linked in the 'deploy:link_shared_paths' step.
-set :shared_paths, ['log']
+set :shared_paths, ['log/proxy_server.log']
 
 # Optional settings:
 set :user, default_config[:ssh_user]    # Username in the server to SSH to.
@@ -38,6 +38,8 @@ end
 task :setup => :environment do
   queue! %[mkdir -p "#{deploy_to}/#{shared_path}/log"]
   queue! %[chmod g+rx,u+rwx "#{deploy_to}/#{shared_path}/log"]
+
+  queue! %[touch "#{deploy_to}/#{shared_path}/log/proxy_server.log"]
 end
 
 desc "Deploys the current version to the server."
