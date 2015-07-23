@@ -2,21 +2,21 @@ require 'mina/bundler'
 require 'mina/git'
 require 'mina/rvm'
 
-set :domain, 'ip'
-set :deploy_to, 'deploy to'
+set :domain, 'host'
+set :deploy_to, 'deploy_to'
 set :repository, 'https://github.com/FlowerWrong/proxy-server-ruby.git'
 set :branch, 'master'
 
 # For system-wide RVM install.
-# On server run `which rvm`
-set :rvm_path, '/usr/local/rvm/bin/rvm'
+# Run 'which rvm'
+set :rvm_path, 'rvm_path'
 
 # Manually create these paths in shared/ (eg: shared/config/database.yml) in your server.
 # They will be linked in the 'deploy:link_shared_paths' step.
 set :shared_paths, ['log']
 
 # Optional settings:
-set :user, 'ubuntu'    # Username in the server to SSH to.
+set :user, 'user_name_for_ssh'    # Username in the server to SSH to.
 #   set :port, '30000'     # SSH port number.
 #   set :forward_agent, true     # SSH forward_agent.
 
@@ -24,7 +24,7 @@ set :user, 'ubuntu'    # Username in the server to SSH to.
 # `mina deploy` or `mina rake`.
 task :environment do
   # For those using RVM, use this to load an RVM version@gemset.
-  # On server run `rvm info`
+  # Run 'rvm info'
   invoke :'rvm:use[ruby-2.1.6-p336@default]'
 end
 
@@ -52,8 +52,37 @@ task :deploy => :environment do
     invoke :'deploy:cleanup'
 
     to :launch do
-      queue 'god terminate'
-      queue 'god -c proxy.god'
+      # queue 'god terminate'
+      queue 'god restart -c proxy.god'
+    end
+  end
+end
+
+# ==============================================================================
+
+# If you are using multi servers, edit it.
+
+# https://github.com/mina-deploy/mina/issues/8
+set :domains, %w[host1 host2]
+
+desc "Setup to all servers"
+task :setup_all do
+  isolate do
+    domains.each do |domain|
+      set :domain, domain
+      invoke :setup
+      run!
+    end
+  end
+end
+
+desc "Deploy to all servers"
+task :deploy_all do
+  isolate do
+    domains.each do |domain|
+      set :domain, domain
+      invoke :deploy
+      run!
     end
   end
 end
