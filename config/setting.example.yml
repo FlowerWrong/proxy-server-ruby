@@ -1,6 +1,6 @@
 proxy:
   hosts: 'host1 host2 host3'  # split with space
-  deploy_path: 'deploy_to'
-  rvm_path: 'rvm path'  # run `which rvm`
-  ssh_user: 'ssh_user'
-  rvm_default: 'rvm:use[ruby-2.1.6-p336@default]'  # run `rvm info`
+  deploy_path: 'deploy_to1 deploy_to2 deploy_to3'
+  rvm_path: 'rvm_path1 rvm_path2 rvm_path3'  # run `which rvm`
+  ssh_user: 'ssh_user1 ssh_user2 ssh_user3'
+  rvm_default: 'rvm:use[ruby-2.1.6-p336@default] rvm:use[ruby-2.1.6-p336@default] rvm:use[ruby-2.1.6-p336@default]'  # run `rvm info`
