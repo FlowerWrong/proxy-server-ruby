@@ -17,6 +17,7 @@ god -c proxy.god -D
 
 ```ruby
 curl -i -x ip:8008 http://api.douban.com/v2/movie/subject/24847343
+curl -x ip:8008 http://api.douban.com/v2/movie/subject/24847343 | python -m json.tool
 ```
 
 ## Deploy
