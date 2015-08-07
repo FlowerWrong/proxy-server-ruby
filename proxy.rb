@@ -64,11 +64,18 @@ class Proxy
       end
     end
 
-    buff = ''
-    loop do
-      to_server.read(4048, buff)
-      to_client.write(buff)
-      break if buff.size < 4048
+    # buff = ''
+    # loop do
+    #   to_server.read(2048, buff)
+    #   to_client.write(buff)
+    #   $log.warn '-----------------------------------------------------------------'
+    #   $log.warn buff.length
+    #   break if buff.size < 2048
+    # end
+
+    # FIX content is not complete
+    while line = to_server.gets  # Read lines from the socket
+      to_client.write line
     end
 
     # Close the sockets
