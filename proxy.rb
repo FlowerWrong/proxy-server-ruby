@@ -10,32 +10,35 @@ $log.level = :warn
 class Proxy
   def run port
     begin
-      # Start our server to handle connections (will raise things on errors)
-      @socket = TCPServer.new port
+      # See http://ruby-doc.org/stdlib-2.2.2/libdoc/socket/rdoc/TCPServer.html
+      # 创建代理服务器
+      @tcp_server = TCPServer.new port
 
       $log.warn 'TCPServer started'
 
       # Handle every request in another thread
       loop do
-        s = @socket.accept
-        Thread.new s, &method(:handle_request)
+        # Wait for a client to connect
+        client = @tcp_server.accept
+        Thread.new client, &method(:handle_request)
       end
 
-    # CTRL-C
+    # CTRL + C
     rescue Interrupt
       $log.warn 'Got Interrupt..'
     # Ensure that we release the socket on errors
     ensure
-      if @socket
-        @socket.close
-        $log.warn 'Socked closed..'
+      if @tcp_server
+        @tcp_server.close
+        $log.warn 'Socket closed..'
       end
       $log.warn 'Quitting.'
     end
   end
 
-  def handle_request to_client
-    request_line = to_client.readline
+  def handle_request tcp_client
+    # Client request
+    request_line = tcp_client.readline
     $log.warn '-----------------------------------------------------------------'
     $log.warn request_line
     verb    = request_line[/^\w+/]
@@ -43,13 +46,15 @@ class Proxy
     version = request_line[/HTTP\/(1\.\d)\s*$/, 1]
     uri     = URI::parse url
 
+    # See http://ruby-doc.org/stdlib-2.2.2/libdoc/socket/rdoc/TCPSocket.html
+    # 发起代理请求
     to_server = TCPSocket.new(uri.host, (uri.port.nil? ? 80 : uri.port))
     to_server.write("#{verb} #{uri.path}?#{uri.query} HTTP/#{version}\r\n")
 
     content_len = 0
 
     loop do
-      line = to_client.readline
+      line = tcp_client.readline
       content_len = $1.to_i if line =~ /^Content-Length:\s+(\d+)\s*$/
 
       # Strip proxy headers
@@ -57,34 +62,27 @@ class Proxy
         next
       elsif line.strip.empty?
         to_server.write("Connection: close\r\n\r\n")
-        to_server.write(to_client.read(content_len)) if content_len >= 0
+        to_server.write(tcp_client.read(content_len)) if content_len >= 0
         break
       else
         to_server.write(line)
       end
     end
 
-    # buff = ''
-    # loop do
-    #   to_server.read(2048, buff)
-    #   to_client.write(buff)
-    #   $log.warn '-----------------------------------------------------------------'
-    #   $log.warn buff.length
-    #   break if buff.size < 2048
-    # end
-
-    # FIX content is not complete
-    while line = to_server.gets  # Read lines from the socket
-      to_client.write line
+    # 返回数据到客户端
+    while line = to_server.gets
+      tcp_client.write line
     end
 
-    # Close the sockets
-    to_client.close
+    # 关闭客户端
+    tcp_client.close
+
+    # 关闭代理请求
     to_server.close
   end
 end
 
-# Get parameters and start the server
+# 获取 port 参数
 if ARGV.empty?
   port = 8008
 elsif ARGV.size == 1
