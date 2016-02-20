@@ -70,9 +70,16 @@ class Proxy
     end
 
     # 返回数据到客户端
+    server_data_len = 0
     while line = to_server.gets
       tcp_client.write line
+      server_data_len = $1.to_i if line =~ /^Content-Length:\s+(\d+)\s*$/
+      break if line.strip.empty?
     end
+
+    # To fix none complete data
+    payload = to_server.read(server_data_len) if server_data_len
+    tcp_client.write payload if payload
 
     # 关闭客户端
     tcp_client.close
